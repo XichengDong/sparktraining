@@ -27,11 +27,17 @@ cd script
 sh generate_data.sh
 
 # Run Spark Code in Spark Shell
+
 ```
 export YARN_CONF_DIR=/home/hadoop/hadoop-2.7.3/etc/hadoop
 cd spark-1.6.2/
-bin/spark-shell yarn-client
+bin/spark-shell --master yarn-client
 ```
 copy code in org.training.spark.optimize.AudienceAnalysis
+
+# Optimization by increasing resources
+```
+bin/spark-shell --master yarn-client --executor-memory 2g --num-executors 4 --executor-cores 2
+```
 
 
