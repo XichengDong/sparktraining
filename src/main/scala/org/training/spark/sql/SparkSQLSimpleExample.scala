@@ -1,13 +1,22 @@
 package org.training.spark.sql
 
 import org.apache.spark._
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{SaveMode, SQLContext, Row}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
 object SparkSQLSimpleExample {
+  case class User(userID: String, gender: String, age: String, occupation: String, zipcode: String)
+
   def main(args: Array[String]) {
-    val conf = new SparkConf()
+    var masterUrl = "local[1]"
+    var dataPath = "data/ml-1m/"
+    if (args.length > 0) {
+      masterUrl = args(0)
+    } else if(args.length > 1) {
+      dataPath = args(1)
+    }
+
+    val conf = new SparkConf().setMaster(masterUrl).setAppName("SparkSQLSimpleExample")
     val sc = new SparkContext(conf)
 
     val sqlContext = new SQLContext(sc)
@@ -15,14 +24,12 @@ object SparkSQLSimpleExample {
     /**
      * Create RDDs
      */
-    val DATA_PATH =  "/Users/xicheng.dong/training-examples/ml-1m/"
+    val DATA_PATH = dataPath
     val usersRdd = sc.textFile(DATA_PATH + "users.dat")
 
     /**
      * Method 1: 通过显式为RDD注入schema，将其变换为DataFrame
      */
-    case class User(userID: String, gender: String, age: String, occupation: String, zipcode: String)
-
     import sqlContext.implicits._
 
     val userRDD = usersRdd.map(_.split("::")).map(p => User(p(0), p(1), p(2), p(3), p(4)))
@@ -39,8 +46,8 @@ object SparkSQLSimpleExample {
     val userDataFrame2 = sqlContext.createDataFrame(userRDD2, schema)
     userDataFrame2.take(10)
     userDataFrame2.count()
-    userDataFrame2.write.json("/tmp/user.json")
-    userDataFrame2.write.parquet("/tmp/user.parquet")
+    userDataFrame2.write.mode(SaveMode.Overwrite).json("/tmp/user.json")
+    userDataFrame2.write.mode(SaveMode.Overwrite).parquet("/tmp/user.parquet")
     //userDataFrame2.limit(10).write.json("/tmp/user.json")
 
     /**
