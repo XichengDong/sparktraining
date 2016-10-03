@@ -1,13 +1,9 @@
 package org.training.spark.sql
 
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.{Path, FileSystem}
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.{SparkContext, SparkConf}
-
-//********************
-//Copyright 2015 Cloudera (http://www.cloudera.com)
-//Authored by Jordan Volz (jordan.volz@cloudera.com)
-//********************
-
 //********************
 //DATA
 //********************
@@ -18,7 +14,13 @@ import org.apache.spark.{SparkContext, SparkConf}
 object FantasyBasketball {
 
   def main(args: Array[String]) {
-    val conf = new SparkConf()
+    var masterUrl = "local[1]"
+    if (args.length > 0) {
+      masterUrl = args(0)
+    }
+
+    // Create a SparContext with the given master URL
+    val conf = new SparkConf().setMaster(masterUrl).setAppName("FantasyBasketball")
     val sc = new SparkContext(conf)
 
     val sqlContext = new SQLContext(sc)
@@ -26,12 +28,18 @@ object FantasyBasketball {
     //SET-UP
     //********************
 
-    val DATA_PATH = "/user/cloudera/"
+    val DATA_PATH = "data/basketball"
+
+    val TMP_PATH = "/tmp/basketball/"
+
+    val fs = FileSystem.get(new Configuration())
+    fs.delete(new Path(TMP_PATH), true)
+
     //process files so that each line includes the year
     for (i <- 1980 to 2016) {
       println(i)
-      val yearStats = sc.textFile(s"${DATA_PATH}/BasketballStats/leagues_NBA_$i*").repartition(sc.defaultParallelism)
-      yearStats.filter(x => x.contains(",")).map(x => (i, x)).saveAsTextFile(s"/user/cloudera/BasketballStatsWithYear/$i/")
+      val yearStats = sc.textFile(s"${DATA_PATH}/leagues_NBA_$i*").repartition(sc.defaultParallelism)
+      yearStats.filter(x => x.contains(",")).map(x => (i, x)).saveAsTextFile(s"${TMP_PATH}/BasketballStatsWithYear/$i/")
     }
 
 
@@ -255,7 +263,7 @@ object FantasyBasketball {
     //********************
 
     //read in all stats
-    val stats = sc.textFile(s"${DATA_PATH}/BasketballStatsWithYear/*/*").repartition(sc.defaultParallelism)
+    val stats = sc.textFile(s"${TMP_PATH}/BasketballStatsWithYear/*/*").repartition(sc.defaultParallelism)
 
     //filter out junk rows, clean up data entry errors as well
     val filteredStats = stats.filter(x => !x.contains("FG%")).filter(x => x.contains(","))
@@ -361,7 +369,7 @@ object FantasyBasketball {
         " on tPlayers.name=t1.name order by tPlayers.name, exp ")
 
     //save as table
-    dfPlayers.write.saveAsTable("Players")
+    dfPlayers.registerTempTable("Players")
     //filteredStats.unpersist()
 
     //********************
@@ -425,7 +433,7 @@ object FantasyBasketball {
     val dfAge = processStatsAgeOrExperience(pStats2, "age")
 
     //save as table
-    dfAge.write.saveAsTable("Age")
+    dfAge.registerTempTable("Age")
 
     //extract out the experience list
     val pStats3 = pStats1.flatMap { case (x, y) => y }
@@ -434,7 +442,7 @@ object FantasyBasketball {
     val dfExperience = processStatsAgeOrExperience(pStats3, "Experience")
 
     //save as table
-    dfExperience.write.saveAsTable("Experience")
+    dfExperience.registerTempTable("Experience")
 
     pStats1.unpersist()
   }

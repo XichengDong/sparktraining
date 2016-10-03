@@ -7,13 +7,22 @@ import org.apache.spark._
  */
 object MovieUserAnalyzer {
   def main(args: Array[String]) {
-    val conf = new SparkConf()
+    var masterUrl = "local[1]"
+    var dataPath = "data/ml-1m/"
+    if (args.length > 0) {
+      masterUrl = args(0)
+    } else if(args.length > 1) {
+      dataPath = args(1)
+    }
+
+    // Create a SparContext with the given master URL
+    val conf = new SparkConf().setMaster(masterUrl).setAppName("MovieUserAnalyzer")
     val sc = new SparkContext(conf)
 
     /**
      * Step 1: Create RDDs
      */
-    val DATA_PATH =  "/Users/xicheng.dong/training-examples/ml-1m/"
+    val DATA_PATH = dataPath
     val MOVIE_TITLE = "Lord of the Rings, The (1978)"
     val MOVIE_ID = "2116"
 
