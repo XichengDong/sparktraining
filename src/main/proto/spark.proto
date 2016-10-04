@@ -1,0 +1,19 @@
+option java_package = "org.training.spark.proto";
+
+message NewClickEvent {
+  optional int64 userId = 1;
+  optional int64 itemId = 2;
+}
+
+message ItemSimilarities {
+  repeated ItemSimilarity itemSimilarites = 1;
+}
+
+message ItemSimilarity {
+  optional int64 itemId = 1;
+  optional double similarity = 2;
+}
+
+message ItemList {
+ repeated int64 itemIds = 1;
+}

@@ -7,6 +7,7 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 
 import kafka.serializer.StringDecoder
 import com.alibaba.fastjson.JSON
+import org.training.spark.util.{KafkaRedisProperties, RedisClient}
 
 object UserClickCountAnalytics {
   def main(args: Array[String]): Unit = {
@@ -20,7 +21,7 @@ object UserClickCountAnalytics {
     val ssc = new StreamingContext(conf, Seconds(5))
 
     // Kafka configurations
-    val topics = KafkaRedisProperties.KAFKA_TOPICS.split("\\,").toSet
+    val topics = KafkaRedisProperties.KAFKA_USER_TOPIC.split("\\,").toSet
     println(s"Topics: ${topics}.")
 
     val brokers = KafkaRedisProperties.KAFKA_ADDR
@@ -45,10 +46,10 @@ object UserClickCountAnalytics {
     val userClicks = events.map(x => (x.getString("uid"), x.getLong("click_count"))).reduceByKey(_ + _)
     userClicks.foreachRDD(rdd => {
       rdd.foreachPartition(partitionOfRecords => {
+        val jedis = RedisClient.pool.getResource
         partitionOfRecords.foreach(pair => {
           val uid = pair._1
           val clickCount = pair._2
-          val jedis = RedisClient.pool.getResource
           jedis.hincrBy(clickHashKey, uid, clickCount)
           println(s"Update uid ${uid} to ${clickCount}.")
 
