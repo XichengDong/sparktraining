@@ -1,4 +1,4 @@
-package org.training.spark.streaming
+package org.training.spark.util
 
 object KafkaRedisProperties {
   val REDIS_SERVER: String = "chinahadoop-1"
@@ -6,5 +6,7 @@ object KafkaRedisProperties {
 
   val KAFKA_SERVER: String = "chinahadoop-1"
   val KAFKA_ADDR: String = KAFKA_SERVER + ":9092"
-  val KAFKA_TOPICS: String = "user_events"
+  val KAFKA_USER_TOPIC: String = "user_events"
+  val KAFKA_RECO_TOPIC: String = "reco3"
+
 }

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject
 import kafka.javaapi.producer.Producer
 import kafka.producer.KeyedMessage
 import kafka.producer.ProducerConfig
+import org.training.spark.util.KafkaRedisProperties
 import scala.util.Random
 
 object KafkaEventProducer {
@@ -39,7 +40,7 @@ object KafkaEventProducer {
   // bin/kafka-topics.sh --zookeeper zk1:2181,zk2:2181,zk3:2181/kafka --describe user_events
   // bin/kafka-console-consumer.sh --zookeeper zk1:2181,zk2:2181,zk3:22181/kafka --topic test_json_basis_event --from-beginning
   def main(args: Array[String]): Unit = {
-    val topic = KafkaRedisProperties.KAFKA_TOPICS
+    val topic = KafkaRedisProperties.KAFKA_USER_TOPIC
     val brokers = KafkaRedisProperties.KAFKA_ADDR
     val props = new Properties()
     props.put("metadata.broker.list", brokers)
