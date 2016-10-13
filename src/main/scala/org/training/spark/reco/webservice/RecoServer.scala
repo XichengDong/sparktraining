@@ -15,13 +15,15 @@ object RecoServer {
     jerseyServlet.setInitOrder(0)
     jerseyServlet.setInitParameter("jersey.config.server.provider.packages", "org.training.spark.reco.webservice")
     try {
-      System.out.println("Web Server started ......")
+      println("Web Server started ......")
       webServer.start
       webServer.join
     } catch {
       case e: Exception => {
         e.printStackTrace
+        println("ERROR:" + e)
       }
+      case e: Throwable => println("ERROR:" + e)
     } finally {
       webServer.destroy
     }

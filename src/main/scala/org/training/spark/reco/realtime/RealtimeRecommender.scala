@@ -27,15 +27,17 @@ object RealtimeRecommender {
     messages.map(_._2).map{ event =>
       NewClickEvent.parseFrom(event)
     }.mapPartitions { iter =>
-      //val jedis = RedisClient.pool.getResource
+      val jedis = RedisClient.pool.getResource
       iter.map { event =>
         println("NewClickEvent:" + event)
         val userId = event.getUserId
         val itemId = event.getItemId
         val key = "II:" + itemId
-        //val value = jedis.get(key)
-        //jedis.set("RUI:" + userId, value)
-        println("Recommend to user:" + userId + ", items:")
+        val value = jedis.get(key)
+        if(value != null) {
+          jedis.set("RUI:" + userId, value)
+          print("Finish recommendation to user:" + userId)
+        }
       }
     }.print()
     // Start the computation

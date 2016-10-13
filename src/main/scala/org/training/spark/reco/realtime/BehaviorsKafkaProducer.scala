@@ -20,21 +20,19 @@ object BehaviorsKafkaProducer {
   def run(topic: String) {
     val props: Properties = new Properties
     props.put("metadata.broker.list", KafkaRedisProperties.KAFKA_ADDR)
-    props.put("serializer.class", "kafka.serializer.StringEncoder")
-    props.put("producer.type", "async")
+    props.put("serializer.class", "kafka.serializer.DefaultEncoder")
     val conf: ProducerConfig = new ProducerConfig(props)
-    var producer: Producer[Long, Array[Byte]] = null
+    var producer: Producer[String, Array[Byte]] = null
     try {
       System.out.println("Producing messages")
-      producer = new Producer[Long, Array[Byte]](conf)
+      producer = new Producer[String, Array[Byte]](conf)
       for (event <- newClickEvents) {
         val eventProto = NewClickEvent.newBuilder().setUserId(event._1).setItemId(event._2).build()
-        producer.send(new KeyedMessage[Long, Array[Byte]](topic, event._1, eventProto.toByteArray))
+        producer.send(new KeyedMessage[String, Array[Byte]](topic, eventProto.toByteArray))
         print("Sending messages:" + eventProto.toString)
       }
       println("Done sending messages")
-    }
-    catch {
+    } catch {
       case ex: Exception => {
         println("Error while producing messages：" + ex)
       }

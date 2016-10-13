@@ -67,7 +67,7 @@ object FantasyBasketball {
     }
 
     //Holds initial bball stats + weighted stats + normalized stats
-    @serializable case class BballData(year: Int, name: String, position: String, age: Int, team: String, gp: Int, gs: Int, mp: Double, stats: Array[Double], statsZ: Array[Double] = Array[Double](), valueZ: Double = 0, statsN: Array[Double] = Array[Double](), valueN: Double = 0, experience: Double = 0)
+    case class BballData(year: Int, name: String, position: String, age: Int, team: String, gp: Int, gs: Int, mp: Double, stats: Array[Double], statsZ: Array[Double] = Array[Double](), valueZ: Double = 0, statsN: Array[Double] = Array[Double](), valueN: Double = 0, experience: Double = 0)
 
     //parse a stat line into a BBallDataZ object
     def bbParse(input: String, bStats: scala.collection.Map[String, Double] = Map.empty, zStats: scala.collection.Map[String, Double] = Map.empty) = {
