@@ -75,6 +75,8 @@ object PopularMovieAnalyzer {
 
     topKmovies.map(x => (movieID2Name.getOrElse(x._1, null), x._2)).foreach(println)
 
+    println(System.currentTimeMillis())
+
     sc.stop()
   }
 }

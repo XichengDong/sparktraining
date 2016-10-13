@@ -17,5 +17,6 @@ libraryDependencies ++= Seq(
   "org.glassfish.jersey.core" % "jersey-server" % "2.17",
   "org.glassfish.jersey.containers" % "jersey-container-servlet-core" % "2.17",
   "org.glassfish.jersey.containers" % "jersey-container-jetty-http" % "2.17",
-  "org.glassfish.jersey.media" % "jersey-media-moxy" % "2.17"
+  "org.glassfish.jersey.media" % "jersey-media-moxy" % "2.17",
+  "javax.ws.rs" % "javax.ws.rs-api" % "2.0"
 )
