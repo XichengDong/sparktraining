@@ -3,7 +3,7 @@ package org.training.spark.core
 import org.apache.spark._
 
 /**
- * 看过“Lord of the Rings, The (1978)”用户年龄和性别分布
+ * 看过“Lord of the Rings, The (1978)”用户和年龄性别分布
  */
 object MovieUserAnalyzer {
   def main(args: Array[String]) {

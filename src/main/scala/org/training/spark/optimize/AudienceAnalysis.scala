@@ -42,6 +42,7 @@ object AudienceAnalysis {
           !p($("letter_252")).equals("o") &&
           p($("number_311")).toInt > 400
     }.map { p =>
+      println("record:" + p($("city")))
       ((p($("city")), p($("state_abbr"))), 1)
     }.reduceByKey(_ + _, 2)
 

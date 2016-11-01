@@ -20,7 +20,7 @@ object FantasyBasketball {
     }
 
     // Create a SparContext with the given master URL
-    val conf = new SparkConf().setMaster(masterUrl).setAppName("FantasyBasketball")
+    val conf = new SparkConf().setMaster(masterUrl).set("spark.sql.shuffle.partitions", "5").setAppName("FantasyBasketball")
     val sc = new SparkContext(conf)
 
     val sqlContext = new SQLContext(sc)

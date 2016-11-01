@@ -1,6 +1,6 @@
 package org.training.spark.optimize
 
-import java.util.concurrent.CountDownLatch
+import java.util.concurrent.{Callable, Executors}
 
 import org.apache.spark.{SparkContext, SparkConf}
 
@@ -12,36 +12,32 @@ object MultipleJobs {
   def main(args: Array[String]) {
     val conf = new SparkConf()
     val sc = new SparkContext(conf)
-    sc.hadoopConfiguration.set("mapreduce.input.fileinputformat.split.minsize", "1000000000")
+    sc.hadoopConfiguration.set("mapreduce.input.fileinputformat.split.minsize", "2000000000")
 
-    /**
-     * Step 1: Prepare RDDs
-     */
-    val DATA_PATH = "/home/hadoop/input/data_wide_3.txt"
-
-    val peopleTxtRdd = sc.textFile(DATA_PATH)
-
-    val latch = new CountDownLatch(2)
-
-    new Thread() {
-      new Runnable {
-        def run = {
-          println(peopleTxtRdd.count)
-          latch.countDown()
-        }
+    val executorService = Executors.newFixedThreadPool(2)
+    // Start thread 1
+    val future1 = executorService.submit(new Callable[Long]() {
+      @Override
+      def call: Long = {
+        val DATA_PATH = "/home/hadoop/input/data_wide_3.txt"
+        val rdd = sc.textFile(DATA_PATH)
+        return rdd.count()
       }
-    }.start()
-
-    new Thread() {
-      new Runnable {
-        def run = {
-          println(peopleTxtRdd.take(10))
-          latch.countDown()
-        }
+    })
+    // Start thread 2
+    val future2 = executorService.submit(new Callable[Long]() {
+      @Override
+      def call: Long = {
+        val DATA_PATH = "/home/hadoop/input/data_wide_4.txt"
+        val rdd = sc.textFile(DATA_PATH)
+        return rdd.count()
       }
-    }.start()
+    })
+    // Wait thread 1
+    println("File 1 Count:" + future1.get())
+    // Wait thread 2
+    println("File 2 Count" + future2.get())
 
-    latch.await()
     sc.stop()
   }
 }
