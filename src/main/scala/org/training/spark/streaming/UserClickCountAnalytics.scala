@@ -48,11 +48,14 @@ object UserClickCountAnalytics {
       rdd.foreachPartition(partitionOfRecords => {
         val jedis = RedisClient.pool.getResource
         partitionOfRecords.foreach(pair => {
-          val uid = pair._1
-          val clickCount = pair._2
-          jedis.hincrBy(clickHashKey, uid, clickCount)
-          println(s"Update uid ${uid} to ${clickCount}.")
-
+          try {
+            val uid = pair._1
+            val clickCount = pair._2
+            jedis.hincrBy(clickHashKey, uid, clickCount)
+            println(s"Update uid ${uid} to ${clickCount}.")
+          } catch {
+            case e: Exception => println("error:" + e)
+          }
         })
       })
     })
