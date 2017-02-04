@@ -2,8 +2,8 @@ package org.training.spark.sql
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{Path, FileSystem}
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.SparkConf
 //********************
 //DATA
 //********************
@@ -21,9 +21,14 @@ object FantasyBasketball {
 
     // Create a SparContext with the given master URL
     val conf = new SparkConf().setMaster(masterUrl).set("spark.sql.shuffle.partitions", "5").setAppName("FantasyBasketball")
-    val sc = new SparkContext(conf)
+    val spark = SparkSession
+        .builder()
+        .appName("FantasyBasketBall")
+        .config(conf)
+        .getOrCreate()
 
-    val sqlContext = new SQLContext(sc)
+    val sc = spark.sparkContext
+
     //********************
     //SET-UP
     //********************
@@ -67,7 +72,7 @@ object FantasyBasketball {
     }
 
     //Holds initial bball stats + weighted stats + normalized stats
-    case class BballData(year: Int, name: String, position: String, age: Int, team: String, gp: Int, gs: Int, mp: Double, stats: Array[Double], statsZ: Array[Double] = Array[Double](), valueZ: Double = 0, statsN: Array[Double] = Array[Double](), valueN: Double = 0, experience: Double = 0)
+    case class BballData(val year: Int, name: String, position: String, age: Int, team: String, gp: Int, gs: Int, mp: Double, stats: Array[Double], statsZ: Array[Double] = Array[Double](), valueZ: Double = 0, statsN: Array[Double] = Array[Double](), valueN: Double = 0, experience: Double = 0)
 
     //parse a stat line into a BBallDataZ object
     def bbParse(input: String, bStats: scala.collection.Map[String, Double] = Map.empty, zStats: scala.collection.Map[String, Double] = Map.empty) = {
@@ -250,7 +255,7 @@ object FantasyBasketball {
       )
 
       //create data frame
-      sqlContext.createDataFrame(stats4, schema)
+      spark.createDataFrame(stats4, schema)
     }
 
     //********************
@@ -358,32 +363,33 @@ object FantasyBasketball {
     )
 
     //create data frame
-    val dfPlayersT = sqlContext.createDataFrame(nPlayer, schemaN)
+    val dfPlayersT = spark.createDataFrame(nPlayer, schemaN)
 
     //save all stats as a temp table
-    dfPlayersT.registerTempTable("tPlayers")
+    dfPlayersT.createOrReplaceTempView("tPlayers")
 
     //calculate exp and zdiff, ndiff
-    val dfPlayers = sqlContext.sql("select age-min_age as exp,tPlayers.* from tPlayers join" +
+    val dfPlayers = spark.sql("select age-min_age as exp,tPlayers.* from tPlayers join" +
         " (select name,min(age)as min_age from tPlayers group by name) as t1" +
         " on tPlayers.name=t1.name order by tPlayers.name, exp ")
 
     //save as table
-    dfPlayers.registerTempTable("Players")
+    dfPlayers.createOrReplaceTempView("Players")
     //filteredStats.unpersist()
 
     //********************
     //ANALYSIS
     //********************
 
-
     //group data by player name
-    val pStats = dfPlayers.sort(dfPlayers("name"), dfPlayers("exp") asc).map(x =>
+    val pStats = dfPlayers.sort(dfPlayers("name"), dfPlayers("exp") asc).rdd.map(x =>
       (x.getString(1), (x.getDouble(50), x.getDouble(40), x.getInt(2), x.getInt(3),
           Array(x.getDouble(31), x.getDouble(32), x.getDouble(33), x.getDouble(34), x.getDouble(35),
-            x.getDouble(36), x.getDouble(37), x.getDouble(38), x.getDouble(39)), x.getInt(0)))).groupByKey()
+            x.getDouble(36), x.getDouble(37), x.getDouble(38), x.getDouble(39)), x.getInt(0))))
+        .groupByKey
     pStats.cache
 
+    import spark.implicits._
     //for each player, go through all the years and calculate the change in valueZ and valueN, save into two lists
     //one for age, one for experience
     //exclude players who played in 1980 from experience, as we only have partial data for them
@@ -433,7 +439,7 @@ object FantasyBasketball {
     val dfAge = processStatsAgeOrExperience(pStats2, "age")
 
     //save as table
-    dfAge.registerTempTable("Age")
+    dfAge.createOrReplaceTempView("Age")
 
     //extract out the experience list
     val pStats3 = pStats1.flatMap { case (x, y) => y }
@@ -442,7 +448,7 @@ object FantasyBasketball {
     val dfExperience = processStatsAgeOrExperience(pStats3, "Experience")
 
     //save as table
-    dfExperience.registerTempTable("Experience")
+    dfExperience.createOrReplaceTempView("Experience")
 
     pStats1.unpersist()
   }
