@@ -34,4 +34,3 @@ Examples for Spark Training in chinahadoop.cn
   ### 将spark-shell运行在yarn client或cluster模式
   - yarn client模式：bin/spark-shell --master yarn --deploy-mode client
   - yarn cluster：bin/spark-shell --master yarn --deploy-mode cluster
-
