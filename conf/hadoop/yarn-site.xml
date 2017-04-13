@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+
+<configuration>
+<property> 
+  <name>yarn.resourcemanager.hostname</name>  
+  <value>chinahadoop-1</value> 
+</property>  
+<property> 
+  <name>yarn.log-aggregation-enable</name>  
+  <value>true</value> 
+</property>  
+<property> 
+  <name>yarn.log-aggregation.retain-seconds</name>  
+  <value>86400</value> 
+</property>  
+<property> 
+  <name>yarn.nodemanager.resource.memory-mb</name>  
+  <value>6144</value> 
+</property>  
+<property> 
+  <name>yarn.nodemanager.local-dirs</name>  
+  <value>/home/hadoop/data/localdir</value> 
+</property>  
+<property> 
+  <name>yarn.nodemanager.log-dirs</name>  
+  <value>/home/hadoop/data/logdir</value> 
+</property>  
+<property> 
+  <name>yarn.nodemanager.aux-services</name>  
+  <value>mapreduce_shuffle</value> 
+</property>  
+<property>
+  <name>yarn.nodemanager.vmem-pmem-ratio</name>
+  <value>10</value>
+</property>
+<property>
+   <name>yarn.log.server.url</name>
+   <value>http://chinahadoop-1:19888/jobhistory/logs</value>
+</property>
+
+</configuration>
