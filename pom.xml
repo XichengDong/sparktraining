@@ -13,7 +13,8 @@
     <fastjson.version>1.2.14</fastjson.version>
     <jetty.version>9.2.5.v20141112</jetty.version>
     <container.version>2.17</container.version>
-    <scala.version>2.10.4</scala.version>
+    <scala.version>2.11.8</scala.version>
+    <scala.binary.version>2.11</scala.binary.version>
     <java.version>1.7</java.version>
   </properties>
 
@@ -35,17 +36,17 @@
 
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-sql_2.10</artifactId>
+      <artifactId>spark-sql_${scala.binary.version}</artifactId>
       <version>${spark.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-mllib_2.10</artifactId>
+      <artifactId>spark-mllib_${scala.binary.version}</artifactId>
       <version>${spark.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-streaming-kafka-0-8_2.10</artifactId>
+      <artifactId>spark-streaming-kafka-0-8_${scala.binary.version}</artifactId>
       <version>${spark.version}</version>
     </dependency>
     <dependency>
