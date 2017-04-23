@@ -9,12 +9,12 @@ import org.apache.spark.rdd._
 object MovieLensALS {
 
   def main(args: Array[String]) {
-    var masterUrl = "local[1]"
-    var dataPath = "data/ml-1m"
-    if (args.length > 0) {
-      masterUrl = args(0)
-    } else if(args.length > 1) {
-      dataPath = args(1)
+    var dataPath = "data/mllib"
+    val conf = new SparkConf().setAppName("MovieLensALS")
+    if(args.length > 0) {
+      dataPath = args(0)
+    } else {
+      conf.setMaster("local[1]")
     }
 
     val movieLensHomeDir = dataPath
@@ -28,11 +28,7 @@ object MovieLensALS {
       println("File movies.dat is not exist under directory:" + movieLensHomeDir)
       System.exit(1)
     }
-
-    // set up environment
-    val conf = new SparkConf()
-        .setMaster(masterUrl)
-        .setAppName("MovieLensALS")
+    
     val sc = new SparkContext(conf)
 
     // load ratings and movie titles

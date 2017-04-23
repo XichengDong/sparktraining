@@ -8,16 +8,14 @@ import org.apache.spark.sql.{SparkSession, Row}
  */
 object MovieUserAnalyzerWithDataFrame {
   def main(args: Array[String]) {
-    var masterUrl = "local[1]"
-    var dataPath = "data/ml-1m/"
-    if (args.length > 0) {
-      masterUrl = args(0)
-    } else if(args.length > 1) {
-      dataPath = args(1)
+    var dataPath = "data/ml-1m"
+    val conf = new SparkConf()
+    if(args.length > 0) {
+      dataPath = args(0)
+    } else {
+      conf.setMaster("local[1]")
     }
 
-    // Create a SparContext with the given master URL
-    val conf = new SparkConf().setMaster(masterUrl).setAppName("MovieUserAnalyzerWithDataFrame")
     val spark = SparkSession
         .builder()
         .appName("MovieUserAnalyzerWithDataFrame")
@@ -33,8 +31,8 @@ object MovieUserAnalyzerWithDataFrame {
     val MOVIE_TITLE = "Lord of the Rings, The (1978)"
     val MOVIE_ID = "2116"
 
-    val usersRdd = sc.textFile(DATA_PATH + "users.dat")
-    val ratingsRdd = sc.textFile(DATA_PATH + "ratings.dat")
+    val usersRdd = sc.textFile(DATA_PATH + "/users.dat")
+    val ratingsRdd = sc.textFile(DATA_PATH + "/ratings.dat")
 
     /**
      * Step 2: Transform to DataFrame
@@ -62,14 +60,14 @@ object MovieUserAnalyzerWithDataFrame {
         select("gender", "age").
         groupBy("gender", "age").
         count().
-        foreach(println(_))
+        collect().foreach(println(_))
 
     // use dataframe
     userDataFrame.createOrReplaceTempView("users")
     ratingDataFrame.createOrReplaceTempView("rating")
     spark.sql("SELECT gender, age, count(*) from users as u join rating  as r " +
-       s"on u.userid = r.userid where movieid = ${MOVIE_ID} group by gender, age").
-        foreach(println(_))
+        s"on u.userid = r.userid where movieid = ${MOVIE_ID} group by gender, age").
+        collect().foreach(println(_))
 
     sc.stop()
   }

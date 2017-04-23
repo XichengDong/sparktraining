@@ -11,13 +11,11 @@ import org.training.spark.util.{KafkaRedisProperties, RedisClient}
 
 object UserClickCountAnalytics {
   def main(args: Array[String]): Unit = {
-    var masterUrl = "local[1]"
-    if (args.length > 0) {
-      masterUrl = args(0)
+    val conf = new SparkConf().setAppName("UserClickCountAnalytics")
+    if (args.length == 0) {
+      conf.setMaster("local[1]")
     }
 
-    // Create a StreamingContext with the given master URL
-    val conf = new SparkConf().setMaster(masterUrl).setAppName("UserClickCountStat")
     val ssc = new StreamingContext(conf, Seconds(5))
 
     // Kafka configurations

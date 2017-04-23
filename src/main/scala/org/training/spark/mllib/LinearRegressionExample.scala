@@ -17,16 +17,14 @@ import org.apache.spark.{SparkConf, SparkContext}
  */
 object LinearRegressionExample {
   def main(args: Array[String]) {
-    var masterUrl = "local[1]"
     var dataPath = "data/mllib/sample_linear_regression_data.txt"
-    if (args.length > 0) {
-      masterUrl = args(0)
-    } else if(args.length > 1) {
-      dataPath = args(1)
+    val conf = new SparkConf()
+    if(args.length > 0) {
+      dataPath = args(0)
+    } else {
+      conf.setMaster("local[1]")
     }
-
-    // Create a SparContext with the given master URL
-    val conf = new SparkConf().setMaster(masterUrl).setAppName("LinearRegressionExample")
+    
     val sc = new SparkContext(conf)
 
     Logger.getRootLogger.setLevel(Level.WARN)

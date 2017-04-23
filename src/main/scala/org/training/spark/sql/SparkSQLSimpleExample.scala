@@ -8,15 +8,14 @@ object SparkSQLSimpleExample {
   case class User(userID: String, gender: String, age: String, occupation: String, zipcode: String)
 
   def main(args: Array[String]) {
-    var masterUrl = "local[1]"
-    var dataPath = "data/ml-1m/"
-    if (args.length > 0) {
-      masterUrl = args(0)
-    } else if(args.length > 1) {
-      dataPath = args(1)
+    var dataPath = "data/ml-1m"
+    val conf = new SparkConf()
+    if(args.length > 0) {
+      dataPath = args(0)
+    } else {
+      conf.setMaster("local[1]")
     }
 
-    val conf = new SparkConf().setMaster(masterUrl).setAppName("SparkSQLSimpleExample")
     val spark = SparkSession
         .builder()
         .appName("SparkSQLSimpleExample")
@@ -29,7 +28,7 @@ object SparkSQLSimpleExample {
      * Create RDDs
      */
     val DATA_PATH = dataPath
-    val usersRdd = sc.textFile(DATA_PATH + "users.dat")
+    val usersRdd = sc.textFile(DATA_PATH + "/users.dat")
 
     /**
      * Method 1: 通过显式为RDD注入schema，将其变换为DataFrame
@@ -102,7 +101,7 @@ object SparkSQLSimpleExample {
         groupBy("gender", "age").
         count
 
-    mergedDataFrame.foreach(println(_))
+    mergedDataFrame.collect().foreach(println(_))
 
     userDataFrame.createOrReplaceTempView("users")
     val groupedUsers = spark.sql("select gender, age, count(*) as n from users group by gender, age")

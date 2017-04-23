@@ -16,16 +16,13 @@ import org.apache.spark.{SparkConf, SparkContext}
 object KMeansExample {
 
   def main(args: Array[String]) {
-    var masterUrl = "local[1]"
     var dataPath = "data/mllib/kmeans_data.txt"
-    if (args.length > 0) {
-      masterUrl = args(0)
-    } else if(args.length > 1) {
-      dataPath = args(1)
+    val conf = new SparkConf().setAppName("KMeansExample")
+    if(args.length > 0) {
+      dataPath = args(0)
+    } else {
+      conf.setMaster("local[1]")
     }
-
-    // Create a SparContext with the given master URL
-    val conf = new SparkConf().setMaster(masterUrl).setAppName("KMeansExample")
 
     val sc = new SparkContext(conf)
 

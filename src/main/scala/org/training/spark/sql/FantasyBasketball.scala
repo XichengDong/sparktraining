@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{Path, FileSystem}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.SparkConf
+import scala.language.postfixOps
 //********************
 //DATA
 //********************
@@ -14,13 +15,11 @@ import org.apache.spark.SparkConf
 object FantasyBasketball {
 
   def main(args: Array[String]) {
-    var masterUrl = "local[1]"
-    if (args.length > 0) {
-      masterUrl = args(0)
+    val conf = new SparkConf()
+    if (args.length == 0) {
+      conf.setMaster("local[1]")
     }
 
-    // Create a SparContext with the given master URL
-    val conf = new SparkConf().setMaster(masterUrl).set("spark.sql.shuffle.partitions", "5").setAppName("FantasyBasketball")
     val spark = SparkSession
         .builder()
         .appName("FantasyBasketBall")
