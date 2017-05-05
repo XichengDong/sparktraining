@@ -55,6 +55,8 @@ object UserClickCountAnalytics {
             case e: Exception => println("error:" + e)
           }
         })
+        // destroy jedis object, please notice pool.returnResource is deprecated
+        jedis.close()
       })
     })
 
